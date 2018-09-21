@@ -15,15 +15,32 @@ class App extends React.Component {
 	//need to mirror fish state to firebase -- wait for application (App componenet) to be on the page
 	componentDidMount() {
 		//application is loaded onto the page -- sync with the name of the store
-		console.log('MOUNTED');
 		//refs in firebase are the refs to piece of data in the database
 		// get name of the store
+
+		//reinstate local storage
+
 		const { params } = this.props.match;
+		const localStorageRef = localStorage.getItem(params.storeId);
+
+		if (localStorageRef) {
+			console.log(JSON.parse(localStorageRef));
+			this.setState({ order: JSON.parse(localStorageRef) });
+		}
 
 		this.ref = base.syncState(`${params.storeId}/fishes`, {
 			context: this,
 			state: 'fishes'
 		});
+	}
+
+	componentDidUpdate() {
+		//set the order for a specific store
+		console.log('update');
+		console.log(this.props.match.params.storeId);
+
+		localStorage.setItem(this.props.match.params.storeId, JSON.stringify(this.state.order));
+		localStorage.setItem('Fred', 'My Friend');
 	}
 
 	componentWillUnmount() {
@@ -40,6 +57,14 @@ class App extends React.Component {
 		this.setState({
 			fishes: fishes
 		});
+	};
+
+	updateFish = (key, updatedFish) => {
+		//take copy of the current state
+		const fishes = { ...this.state.fishes };
+		//update the state
+		fishes[key] = updatedFish;
+		this.setState({ fishes });
 	};
 
 	loadSampleFishes = () => {
@@ -67,7 +92,12 @@ class App extends React.Component {
 						))}
 					</ul>
 				</div>
-				<Inventory addFish={this.addFish} loadSampleFishes={this.loadSampleFishes} />
+				<Inventory
+					addFish={this.addFish}
+					loadSampleFishes={this.loadSampleFishes}
+					fishes={this.state.fishes}
+					updateFish={this.updateFish}
+				/>
 				<Order fishes={this.state.fishes} order={this.state.order} />
 			</div>
 		);
