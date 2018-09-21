@@ -4,12 +4,31 @@ import Inventory from './Inventory';
 import Order from './Order';
 import sampleFishes from '../sample-fishes';
 import Fish from './Fish';
+import base from '../base';
 
 class App extends React.Component {
 	state = {
 		fishes: {},
 		order: {}
 	};
+
+	//need to mirror fish state to firebase -- wait for application (App componenet) to be on the page
+	componentDidMount() {
+		//application is loaded onto the page -- sync with the name of the store
+		console.log('MOUNTED');
+		//refs in firebase are the refs to piece of data in the database
+		// get name of the store
+		const { params } = this.props.match;
+
+		this.ref = base.syncState(`${params.storeId}/fishes`, {
+			context: this,
+			state: 'fishes'
+		});
+	}
+
+	componentWillUnmount() {
+		console.log('Unmount');
+	}
 
 	addFish = fish => {
 		//take a copy of exiting state with an object spread
