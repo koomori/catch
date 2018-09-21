@@ -27,7 +27,8 @@ class App extends React.Component {
 	}
 
 	componentWillUnmount() {
-		console.log('Unmount');
+		//when we leave, we can remove it, and not keep all references in memory
+		base.removeBinding(this.ref);
 	}
 
 	addFish = fish => {
